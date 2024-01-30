@@ -1,5 +1,4 @@
-from PyQt6 import QtWidgets, QtGui, QtCore
-from PyQt6.QtGui import QPixmap
+from PyQt6 import QtWidgets, QtGui
 import sys
 
 
