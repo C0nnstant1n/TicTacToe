@@ -44,7 +44,7 @@ class UiDesk(QtWidgets.QWidget):
 class Field(QtWidgets.QLabel):
     def __init__(self, parent=None):
         QtWidgets.QLabel.__init__(self, parent)
-        self.mysignal = QtCore.pyqtSignal(str)
+        self.my_signal = QtCore.pyqtSignal(str)
 
     def onMySignal(self):
         print('my signal')
@@ -74,7 +74,6 @@ if __name__ == '__main__':
             field = Field()
             field.setObjectName(str(x))
             field.setPixmap(QtGui.QPixmap('img/field.png'))
-            field.mysignal.connect(field.onMySignal('asd'))
             # field.setStyleSheet('background-color: gray')
 
             desk_grid.addWidget(field, i, j)
