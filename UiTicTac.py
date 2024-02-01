@@ -50,25 +50,28 @@ class UiDesk(QtWidgets.QWidget):
     def __init__(self, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
         self.setGeometry(142, 184, 147, 146)
-        grid = QtWidgets.QGridLayout()
-        grid.setSpacing(3)
-        grid.setContentsMargins(0, 0, 0, 0)
+        self.grid = QtWidgets.QGridLayout()
+        self.grid.setSpacing(3)
+        self.grid.setContentsMargins(0, 0, 0, 0)
         self.fields = [Field(i) for i in range(0, 10)]
         x = 0
         for i in range(0, 3):
             for j in range(0, 3):
-                grid.addWidget(self.fields[x], i, j)
+                self.grid.addWidget(self.fields[x], i, j)
                 x += 1
         for field in self.fields:
             field.setPixmap(QtGui.QPixmap('img/field.png'))
             field.click_signal.connect(self.change_field)
-        self.setLayout(grid)
+        self.setLayout(self.grid)
 
     def change_field(self, id):
         if not(self.fields[id].is_active()):
+            print(game_desk)
             self.fields[id].set_active()
             self.fields[id].setPixmap((QtGui.QPixmap('')))
-            print(id)
+            x, y, m, n = self.grid.getItemPosition(id)
+            game_desk[x][y] = 'x'
+            print(game_desk)
         else:
             return self.fields[id].is_active()
 
