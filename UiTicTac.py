@@ -1,5 +1,6 @@
 from PyQt6 import QtWidgets, QtGui, QtCore
 import sys
+from loadStyles import parse_css_styles
 
 
 class MainWindow(QtWidgets.QWidget):
@@ -42,12 +43,19 @@ class UiDesk(QtWidgets.QWidget):
 
 
 class Field(QtWidgets.QLabel):
-    def __init__(self, parent=None):
-        QtWidgets.QLabel.__init__(self, parent)
-        self.my_signal = QtCore.pyqtSignal(str)
+    click_signal = QtCore.pyqtSignal(int)
 
-    def onMySignal(self):
-        print('my signal')
+    def __init__(self, idx: int, parent=None):
+        QtWidgets.QLabel.__init__(self, parent)
+        self.setText('')
+        if 9 < idx < 0:
+            idx = 0
+        self.id = idx
+
+    def mousePressEvent(self, evt):
+        self.click_signal.emit(self.id)
+        QtWidgets.QLabel.mousePressEvent(self, evt)
+        print('click', self.id)
 
 
 if __name__ == '__main__':
@@ -57,8 +65,7 @@ if __name__ == '__main__':
     window = MainWindow()
 
     label = QtWidgets.QLabel('Крестики - нолики', window)
-    label.setStyleSheet('color: #29f; font-family: Comic Sans MS; font-style: italic;'
-                        ' font-weight: bold; font-size: 26px')
+    label.setStyleSheet(parse_css_styles('h1', 'styles/styles.css'))
     label.setGeometry(260, 50, 300, 30)
 
     grid = GridWidget(window)
@@ -70,10 +77,11 @@ if __name__ == '__main__':
     x = 0
     for i in range(0, 3):
         for j in range(0, 3):
-            x += 1
-            field = Field()
+
+            field = Field(x)
             field.setObjectName(str(x))
             field.setPixmap(QtGui.QPixmap('img/field.png'))
+            x += 1
             # field.setStyleSheet('background-color: gray')
 
             desk_grid.addWidget(field, i, j)
