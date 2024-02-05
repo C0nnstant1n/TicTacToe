@@ -1,7 +1,21 @@
 h1 {
   color: rgb(85, 27, 179);
-  font-family: Comic Sans MS;
+  font-family: Segoe Script;
   font-style: italic;
   font-weight: bold;
-  font-size: 26px;
+  font-size: 32px;
+}
+.message {
+  color: rgb(85, 27, 179);
+  font-family: Segoe Script;
+  font-style: italic;
+  font-weight: bold;
+  font-size: 24px;
+}
+.error_message {
+  color: rgb(191, 46, 101);
+  font-family: Segoe Script;
+  font-style: italic;
+  font-weight: bold;
+  font-size: 24px;
 }

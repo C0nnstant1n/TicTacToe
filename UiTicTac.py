@@ -1,10 +1,12 @@
 from PyQt6 import QtWidgets, QtGui, QtCore
 import sys
-from loadStyles import parse_css_styles
 from ticTacToe import game_desk
+from messages import Header, Message, ErrorMessage
 
 
 class GridWidget(QtWidgets.QLabel):
+
+    """Рисуем решетку. Этот класс используется в учебных целях. Гораздо проще вывести готовую картинку"""
     def __init__(self, parent=None):
         QtWidgets.QLabel.__init__(self, parent)
         self.setGeometry(125, 170, 180, 180)
@@ -13,7 +15,7 @@ class GridWidget(QtWidgets.QLabel):
         painter = QtGui.QPainter()
         painter.begin(self)
 
-        color = QtGui.QColor('#00f')
+        color = QtGui.QColor(85, 27, 179)
         pen = QtGui.QPen(color, 3, style=QtCore.Qt.PenStyle.SolidLine)
         painter.setPen(pen)
         painter.drawLine(65, 0, 65, 180)
@@ -25,6 +27,7 @@ class GridWidget(QtWidgets.QLabel):
 
 
 class Field(QtWidgets.QLabel):
+    """Здесь опишем единичную ячейку игрового поля"""
     click_signal = QtCore.pyqtSignal(int)
 
     def __init__(self, idx: int, parent=None):
@@ -36,6 +39,7 @@ class Field(QtWidgets.QLabel):
         self.active = False
 
     def mousePressEvent(self, evt):
+        """Создаем сигнал клика по полю"""
         self.click_signal.emit(self.id)
         QtWidgets.QLabel.mousePressEvent(self, evt)
 
@@ -47,6 +51,9 @@ class Field(QtWidgets.QLabel):
 
 
 class UiDesk(QtWidgets.QWidget):
+    """Класс игрового поля."""
+    error_signal = QtCore.pyqtSignal(str)
+
     def __init__(self, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
         self.setGeometry(142, 184, 147, 146)
@@ -65,14 +72,15 @@ class UiDesk(QtWidgets.QWidget):
         self.setLayout(self.grid)
 
     def change_field(self, id):
-        if not(self.fields[id].is_active()):
-            print(game_desk)
+        if not (self.fields[id].is_active()):
             self.fields[id].set_active()
             self.fields[id].setPixmap((QtGui.QPixmap('')))
             x, y, m, n = self.grid.getItemPosition(id)
+            self.error_signal.emit('')
             game_desk[x][y] = 'x'
-            print(game_desk)
         else:
+            self.error_signal.emit('Такой ход уже был')
+            print('Такой ход уже был')
             return self.fields[id].is_active()
 
 
@@ -81,16 +89,25 @@ class MainWindow(QtWidgets.QWidget):
         QtWidgets.QWidget.__init__(self, parent)
         self.setWindowTitle('Крестики - нолики')
         self.setFixedSize(820, 480)
+        self.player = 0
         pal = self.palette()
         pal.setBrush(QtGui.QPalette.ColorGroup.Normal, QtGui.QPalette.ColorRole.Window,
                      QtGui.QBrush(QtGui.QPixmap('img/math_list.png')))
         pal.setBrush(QtGui.QPalette.ColorGroup.Inactive, QtGui.QPalette.ColorRole.Window,
                      QtGui.QBrush(QtGui.QPixmap('img/math_list.png')))
         self.setPalette(pal)
-        self.header = QtWidgets.QLabel('Крестики - нолики', self)
-        self.header.setStyleSheet(parse_css_styles('h1', 'styles/styles.css'))
-        self.header.setGeometry(260, 50, 300, 30)
+        self.header = Header('Крестики - нолики', parent=self)
+        self.message = Message(f"Ходит {self.player + 1}й игрок", parent=self)
+        self.error_message = ErrorMessage('', parent=self)
         self.grid_widget = GridWidget(self)
+        self.ui = UiDesk(self)
+        self.ui.error_signal.connect(self.set_error_message)
+
+    def set_message(self, message):
+        self.message.setText(message)
+
+    def set_error_message(self, error_message):
+        self.error_message.setText(error_message)
 
 
 if __name__ == '__main__':
@@ -98,7 +115,6 @@ if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
 
     window = MainWindow()
-    ui = UiDesk(window)
 
     window.show()
     sys.exit(app.exec())
