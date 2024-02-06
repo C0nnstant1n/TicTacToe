@@ -1,85 +1,10 @@
-from PyQt6 import QtWidgets, QtGui, QtCore
+from PyQt6 import QtWidgets, QtGui
 import sys
+
+from gui.end_game_window import EndGameWindow
+from gui.game_desk import GridWidget, UiDesk
 from ticTacToe import game_desk, check_turn
 from gui.messages import Header, Message, ErrorMessage
-
-
-class GridWidget(QtWidgets.QLabel):
-
-    """Рисуем решетку. Этот класс используется в учебных целях. Гораздо проще вывести готовую картинку"""
-    def __init__(self, parent=None):
-        QtWidgets.QLabel.__init__(self, parent)
-        self.setGeometry(125, 170, 180, 180)
-
-    def paintEvent(self, a0):
-        painter = QtGui.QPainter()
-        painter.begin(self)
-
-        color = QtGui.QColor(85, 27, 179)
-        pen = QtGui.QPen(color, 3, style=QtCore.Qt.PenStyle.SolidLine)
-        painter.setPen(pen)
-        painter.drawLine(65, 0, 65, 180)
-        painter.drawLine(114, 0, 114, 180)
-        painter.drawLine(0, 63, 180, 63)
-        painter.drawLine(0, 112, 180, 112)
-
-        painter.end()
-
-
-class Field(QtWidgets.QLabel):
-    """Здесь опишем единичную ячейку игрового поля"""
-    click_signal = QtCore.pyqtSignal(int)
-
-    def __init__(self, idx: int, parent=None):
-        QtWidgets.QLabel.__init__(self, parent)
-        self.setText('')
-        if 9 < idx < 0:
-            idx = 0
-        self.id = idx
-        self.active = False
-
-    def mousePressEvent(self, evt):
-        """Создаем сигнал клика по полю"""
-        self.click_signal.emit(self.id)
-        QtWidgets.QLabel.mousePressEvent(self, evt)
-
-    def is_active(self):
-        return self.active
-
-    def set_active(self):
-        self.active = True
-
-
-class UiDesk(QtWidgets.QWidget):
-    """Класс игрового поля."""
-    error_signal = QtCore.pyqtSignal(str)
-    step_signal = QtCore.pyqtSignal(int)
-
-    def __init__(self, parent=None):
-        QtWidgets.QWidget.__init__(self, parent)
-        self.setGeometry(142, 184, 147, 146)
-        self.grid = QtWidgets.QGridLayout()
-        self.grid.setSpacing(3)
-        self.grid.setContentsMargins(0, 0, 0, 0)
-        self.fields = [Field(i) for i in range(0, 10)]
-        x = 0
-        for i in range(0, 3):
-            for j in range(0, 3):
-                self.grid.addWidget(self.fields[x], i, j)
-                x += 1
-        for field in self.fields:
-            field.setPixmap(QtGui.QPixmap('img/field.png'))
-            field.click_signal.connect(self.change_field)
-        self.setLayout(self.grid)
-
-    def change_field(self, id):
-        if not (self.fields[id].is_active()):
-            self.step_signal.emit(id)
-            self.error_signal.emit('')
-        else:
-            self.error_signal.emit('Такой ход уже был')
-            print('Такой ход уже был')
-            return self.fields[id].is_active()
 
 
 class MainWindow(QtWidgets.QWidget):
@@ -109,31 +34,48 @@ class MainWindow(QtWidgets.QWidget):
     def set_error_message(self, error_message):
         self.error_message.setText(error_message)
 
-    def check_step(self, id):
-        self.ui.fields[id].set_active()
-        x, y, m, n = self.ui.grid.getItemPosition(id)
+    def check_step(self, idx):
+        self.ui.fields[idx].set_active()
+        x, y, m, n = self.ui.grid.getItemPosition(idx)
 
         if self.player:
-            self.ui.fields[id].setPixmap((QtGui.QPixmap('img/x1.png')))
+            self.ui.fields[idx].setPixmap((QtGui.QPixmap('img/x.png')))
             game_desk[x][y] = 'x'
         else:
-            self.ui.fields[id].setPixmap((QtGui.QPixmap('img/01.png')))
+            self.ui.fields[idx].setPixmap((QtGui.QPixmap('img/0.png')))
             game_desk[x][y] = 'o'
-        print(check_turn())
+        if any(check_turn()):
+            self.pop_up_window(f'Игрок {self.player + 1} победил')
 
         if self.turn == 8:
-            print(self.turn)
-            self.close()
+            self.pop_up_window("Ничья")
 
         self.player = not self.player
         self.set_message(f"Ходит {self.player + 1}й игрок")
         self.turn += 1
 
+    def pop_up_window(self, message):
+        win_window = EndGameWindow(message, self)
+        if win_window.exec():
+            app.exit(1)
+        else:
+            app.exit(0)
+
+
+def reset_game_desk():
+    for i in range(0, 3):
+        for j in range(0, 3):
+            game_desk[i][j] = '-'
+
 
 if __name__ == '__main__':
-
-    app = QtWidgets.QApplication(sys.argv)
-
-    window = MainWindow()
-    window.show()
-    sys.exit(app.exec())
+    code = 1
+    while code:
+        app = None
+        window = None
+        reset_game_desk()
+        app = QtWidgets.QApplication(sys.argv)
+        window = MainWindow()
+        window.show()
+        code = app.exec()
+    sys.exit()

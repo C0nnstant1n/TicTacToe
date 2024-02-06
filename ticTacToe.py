@@ -84,7 +84,6 @@ def extract_rdiag(matrix):      # Извлекаем правую диагона
 
 
 def check_turn():               # Перерисовываем экран и обновляем результаты проверок
-    print_matrix(game_desk)
     result = (extract_string(game_desk), extract_rdiag(game_desk),
               extract_ldiag(game_desk), extract_column(game_desk))
     return result
