@@ -1,7 +1,7 @@
 from PyQt6 import QtWidgets, QtGui, QtCore
 import sys
-from ticTacToe import game_desk
-from messages import Header, Message, ErrorMessage
+from ticTacToe import game_desk, check_turn
+from gui.messages import Header, Message, ErrorMessage
 
 
 class GridWidget(QtWidgets.QLabel):
@@ -53,6 +53,7 @@ class Field(QtWidgets.QLabel):
 class UiDesk(QtWidgets.QWidget):
     """Класс игрового поля."""
     error_signal = QtCore.pyqtSignal(str)
+    step_signal = QtCore.pyqtSignal(int)
 
     def __init__(self, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
@@ -73,11 +74,8 @@ class UiDesk(QtWidgets.QWidget):
 
     def change_field(self, id):
         if not (self.fields[id].is_active()):
-            self.fields[id].set_active()
-            self.fields[id].setPixmap((QtGui.QPixmap('')))
-            x, y, m, n = self.grid.getItemPosition(id)
+            self.step_signal.emit(id)
             self.error_signal.emit('')
-            game_desk[x][y] = 'x'
         else:
             self.error_signal.emit('Такой ход уже был')
             print('Такой ход уже был')
@@ -89,7 +87,8 @@ class MainWindow(QtWidgets.QWidget):
         QtWidgets.QWidget.__init__(self, parent)
         self.setWindowTitle('Крестики - нолики')
         self.setFixedSize(820, 480)
-        self.player = 0
+        self.player = False
+        self.turn = 0
         pal = self.palette()
         pal.setBrush(QtGui.QPalette.ColorGroup.Normal, QtGui.QPalette.ColorRole.Window,
                      QtGui.QBrush(QtGui.QPixmap('img/math_list.png')))
@@ -102,6 +101,7 @@ class MainWindow(QtWidgets.QWidget):
         self.grid_widget = GridWidget(self)
         self.ui = UiDesk(self)
         self.ui.error_signal.connect(self.set_error_message)
+        self.ui.step_signal.connect(self.check_step)
 
     def set_message(self, message):
         self.message.setText(message)
@@ -109,12 +109,31 @@ class MainWindow(QtWidgets.QWidget):
     def set_error_message(self, error_message):
         self.error_message.setText(error_message)
 
+    def check_step(self, id):
+        self.ui.fields[id].set_active()
+        x, y, m, n = self.ui.grid.getItemPosition(id)
+
+        if self.player:
+            self.ui.fields[id].setPixmap((QtGui.QPixmap('img/x1.png')))
+            game_desk[x][y] = 'x'
+        else:
+            self.ui.fields[id].setPixmap((QtGui.QPixmap('img/01.png')))
+            game_desk[x][y] = 'o'
+        print(check_turn())
+
+        if self.turn == 8:
+            print(self.turn)
+            self.close()
+
+        self.player = not self.player
+        self.set_message(f"Ходит {self.player + 1}й игрок")
+        self.turn += 1
+
 
 if __name__ == '__main__':
 
     app = QtWidgets.QApplication(sys.argv)
 
     window = MainWindow()
-
     window.show()
     sys.exit(app.exec())
