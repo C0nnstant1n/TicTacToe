@@ -58,7 +58,11 @@ class UiDesk(QtWidgets.QWidget):
         self.grid = QtWidgets.QGridLayout()
         self.grid.setSpacing(3)
         self.grid.setContentsMargins(0, 0, 0, 0)
-        self.fields = [Field(i) for i in range(0, 10)]
+        self.fields = []
+        self.reset()
+
+    def reset(self):
+        self.fields = [Field(i) for i in range(0, 9)]
         x = 0
         for i in range(0, 3):
             for j in range(0, 3):

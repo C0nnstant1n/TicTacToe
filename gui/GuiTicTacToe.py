@@ -1,10 +1,11 @@
 from PyQt6 import QtWidgets, QtGui
 import sys
-
 from gui.end_game_window import EndGameWindow
 from gui.game_desk import GridWidget, UiDesk
-from ticTacToe import game_desk, check_turn
 from gui.messages import Header, Message, ErrorMessage
+import ticTacToe
+from importlib import reload
+module_game_desk = reload(ticTacToe)
 
 
 class MainWindow(QtWidgets.QWidget):
@@ -28,6 +29,12 @@ class MainWindow(QtWidgets.QWidget):
         self.ui.error_signal.connect(self.set_error_message)
         self.ui.step_signal.connect(self.check_step)
 
+    def reset(self):
+        reload(ticTacToe)
+        self.ui.reset()
+        self.player = True
+        self.turn = -1
+
     def set_message(self, message):
         self.message.setText(message)
 
@@ -40,11 +47,11 @@ class MainWindow(QtWidgets.QWidget):
 
         if self.player:
             self.ui.fields[idx].setPixmap((QtGui.QPixmap('img/x.png')))
-            game_desk[x][y] = 'x'
+            module_game_desk.game_desk[x][y] = 'x'
         else:
             self.ui.fields[idx].setPixmap((QtGui.QPixmap('img/0.png')))
-            game_desk[x][y] = 'o'
-        if any(check_turn()):
+            module_game_desk.game_desk[x][y] = 'o'
+        if any(ticTacToe.check_turn()):
             self.pop_up_window(f'Игрок {self.player + 1} победил')
 
         if self.turn == 8:
@@ -57,25 +64,13 @@ class MainWindow(QtWidgets.QWidget):
     def pop_up_window(self, message):
         win_window = EndGameWindow(message, self)
         if win_window.exec():
-            app.exit(1)
+            self.reset()
         else:
             app.exit(0)
 
 
-def reset_game_desk():
-    for i in range(0, 3):
-        for j in range(0, 3):
-            game_desk[i][j] = '-'
-
-
 if __name__ == '__main__':
-    code = 1
-    while code:
-        app = None
-        window = None
-        reset_game_desk()
-        app = QtWidgets.QApplication(sys.argv)
-        window = MainWindow()
-        window.show()
-        code = app.exec()
-    sys.exit()
+    app = QtWidgets.QApplication(sys.argv)
+    window = MainWindow()
+    window.show()
+    sys.exit(app.exec())
