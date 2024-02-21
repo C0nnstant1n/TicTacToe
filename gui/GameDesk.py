@@ -1,4 +1,4 @@
-from PyQt6 import QtWidgets, QtGui, QtCore
+from PySide6 import QtWidgets, QtGui, QtCore
 
 
 class GridWidget(QtWidgets.QLabel):
@@ -11,21 +11,22 @@ class GridWidget(QtWidgets.QLabel):
     def paintEvent(self, a0):
         painter = QtGui.QPainter()
         painter.begin(self)
+        painter.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
 
         color = QtGui.QColor(85, 27, 179)
-        pen = QtGui.QPen(color, 3, style=QtCore.Qt.PenStyle.SolidLine)
+        pen = QtGui.QPen(color, 3)
         painter.setPen(pen)
-        painter.drawLine(65, 0, 65, 180)
-        painter.drawLine(114, 0, 114, 180)
-        painter.drawLine(0, 63, 180, 63)
-        painter.drawLine(0, 112, 180, 112)
+        painter.drawLine(66, 0, 64, 180)
+        painter.drawLine(114, 0, 113, 180)
+        painter.drawLine(0, 62, 180, 65)
+        painter.drawLine(0, 111, 180, 113)
 
         painter.end()
 
 
 class Field(QtWidgets.QLabel):
     """Здесь опишем единичную ячейку игрового поля"""
-    click_signal = QtCore.pyqtSignal(int)
+    click_signal = QtCore.Signal(int)
 
     def __init__(self, idx: int, parent=None):
         QtWidgets.QLabel.__init__(self, parent)
@@ -49,8 +50,8 @@ class Field(QtWidgets.QLabel):
 
 class UiDesk(QtWidgets.QWidget):
     """Класс игрового поля."""
-    error_signal = QtCore.pyqtSignal(str)
-    step_signal = QtCore.pyqtSignal(int)
+    error_signal = QtCore.Signal(str)
+    step_signal = QtCore.Signal(int)
 
     def __init__(self, parent=None):
         QtWidgets.QWidget.__init__(self, parent)

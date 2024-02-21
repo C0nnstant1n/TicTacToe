@@ -1,4 +1,4 @@
-from PyQt6.QtCore import QFile, QIODevice, QTextStream
+from PySide6.QtCore import QFile, QIODevice, QTextStream
 
 
 def parse_css_styles(tag: str, css_file: str) -> str:

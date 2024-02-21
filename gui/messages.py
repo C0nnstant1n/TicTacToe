@@ -1,4 +1,4 @@
-from PyQt6 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore
 from gui.loadStyles import parse_css_styles
 
 
