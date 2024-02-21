@@ -5,7 +5,7 @@ from gui.GameDesk import GridWidget, UiDesk
 from gui.messages import Header, Message, ErrorMessage
 import ticTacToe
 from importlib import reload
-from startWindow import Ui_ChoiceDialog as StartDialog
+from startWindow import StartDialogWindow
 
 module_game_desk = reload(ticTacToe)
 
@@ -81,33 +81,6 @@ class MainWindow(QtWidgets.QWidget):
             self.reset()
         else:
             app.exit(0)
-
-
-class StartDialogWindow(QtWidgets.QDialog, StartDialog):
-    def __init__(self, main_window: MainWindow, parent=None):
-        QtWidgets.QDialog.__init__(self, parent)
-        self.setupUi(self)
-        self.main_window = main_window
-        self.x_btn.click_signal.connect(self.x_player)
-        self.o_btn.click_signal.connect(self.o_player)
-
-    def x_player(self):
-        self.start(0)
-
-    def o_player(self):
-        self.start(1)
-
-    def start(self, player: int):
-        if player:
-            self.main_window.player = False
-        else:
-            self.main_window.player = True
-        self.main_window.set_message(f'Ходит игрок "{self.main_window.check_player()}"')
-        self.close()
-
-    @staticmethod
-    def quit():
-        sys.exit()
 
 
 if __name__ == '__main__':
