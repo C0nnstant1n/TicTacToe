@@ -25,7 +25,7 @@ class GridWidget(QtWidgets.QLabel):
 
 
 class Field(QtWidgets.QLabel):
-    """Здесь опишем единичную ячейку игрового поля"""
+    """Единичная клетка игрового поля"""
     click_signal = QtCore.Signal(int)
 
     def __init__(self, idx: int, parent=None):

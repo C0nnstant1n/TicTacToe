@@ -1,3 +1,5 @@
+import random
+
 from PySide6.QtCore import (QCoreApplication, QMetaObject, QSize, Qt, Signal)
 from PySide6.QtGui import (QFont, QPixmap)
 from PySide6.QtWidgets import (QDialog, QHBoxLayout, QLabel,QVBoxLayout)
@@ -81,17 +83,23 @@ class StartDialogWindow(QDialog, Ui_ChoiceDialog):
         self.o_btn.click_signal.connect(self.o_player)
 
     def x_player(self):
-        self.start(0)
+        self.start(True)
 
     def o_player(self):
-        self.start(1)
+        self.start(False)
 
-    def start(self, player: int):
-        if player:
-            self.main_window.player = False
+    def start(self, player: bool):
+        print(player)
+        self.main_window.player = player
+        if self.main_window.player_is_user:
+            self.main_window.player = player
+            self.main_window.set_message(f'Ход игрока')
         else:
-            self.main_window.player = True
-        self.main_window.set_message(f'Ходит игрок "{self.main_window.check_player()}"')
+            if player:
+                self.main_window.player = player
+            else:
+                self.main_window.player = not player
+            self.main_window.set_message(f'Ход компьютера')
         self.close()
 
     @staticmethod
