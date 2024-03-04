@@ -19,8 +19,8 @@ class MainWindow(QtWidgets.QWidget):
         self.setWindowTitle('Крестики - нолики')
         self.setFixedSize(820, 480)
         self.message = Message("", self)
-        self.player = False
-        self.player_is_user = not (random.randint(0, 1))
+        self.player = True
+        self.player_is_user = True
         pal = self.palette()
         pal.setBrush(QtGui.QPalette.ColorGroup.Normal, QtGui.QPalette.ColorRole.Window,
                      QtGui.QBrush(QtGui.QPixmap('img/math_list.png')))
@@ -34,17 +34,39 @@ class MainWindow(QtWidgets.QWidget):
         self.ui.error_signal.connect(self.set_error_message)
         self.ui.step_signal.connect(self.check_step)
         self.setting_window = StartDialogWindow(self, self)
+
+    def showEvent(self, event):
+        time.sleep(1)
+        print('Show Window')
+        self.setting_window.exec()
+        self.player_is_user = not random.randint(0, 1)
+        print('choice-', self.check_player())
+        self.start_message()
+        print('after start message', self.check_player())
+        QtWidgets.QWidget.showEvent(self, event)
+
+    def start_message(self):
+        if self.player_is_user:
+            self.set_message(f'Ход игрока')
+        else:
+            self.set_message(f'Ход компьютера')
         if not self.player_is_user:
+            self.player = not self.player
+            time.sleep(1)
             self.comp_turn()
 
-    def showEvent(self, e):
-        self.setting_window.exec()
-
     def reset(self):
+        print('reset')
+        print('sym choice - ', self.check_player())
         reload(ticTacToe)
-        self.player_is_user = not (random.randint(0, 1))
+
         self.ui.reset()
-        self.showEvent('')
+        self.setting_window.exec()
+        self.player_is_user = not (random.randint(0, 1))
+        self.start_message()
+        print('sym - ', self.check_player())
+        print('player - ', self.player_is_user)
+        print('end_reset')
 
     def set_message(self, message):
         self.message.setText(message)
@@ -53,7 +75,11 @@ class MainWindow(QtWidgets.QWidget):
         self.error_message.setText(error_message)
 
     def check_step(self, idx):
-        print(f'x - {self.player}, Игрок - {self.player_is_user}')
+        if self.player_is_user:
+            print(f'player turn, symbol - {self.check_player()}')
+        else:
+            print(f'pause, comp turn, symbol - {self.check_player()}')
+
         self.ui.fields[idx].set_active()
         x, y, m, n = self.ui.grid.getItemPosition(idx)
 
@@ -69,7 +95,9 @@ class MainWindow(QtWidgets.QWidget):
         elif any(ticTacToe.check_turn()) and not self.player_is_user:
             self.pop_up_window(f'Компьютер победил')
 
+        print(self.check_player())
         self.player = not self.player
+        print(self.check_player())
         self.player_is_user = not self.player_is_user
 
         if self.player_is_user:
@@ -77,14 +105,11 @@ class MainWindow(QtWidgets.QWidget):
         else:
             self.set_message(f'Ход Компьютера')
             self.repaint()
-            print('pause')
             time.sleep(1)
             self.comp_turn()
             self.repaint()
 
-        self.player = not self.player
-        # self.player_is_user = not self.player_is_user
-
+        print(module_game_desk.game_desk)
         if not ('-' in module_game_desk.game_desk[0] or
                 '-' in module_game_desk.game_desk[1] or
                 '-' in module_game_desk.game_desk[1]):

@@ -89,17 +89,7 @@ class StartDialogWindow(QDialog, Ui_ChoiceDialog):
         self.start(False)
 
     def start(self, player: bool):
-        print(player)
         self.main_window.player = player
-        if self.main_window.player_is_user:
-            self.main_window.player = player
-            self.main_window.set_message(f'Ход игрока')
-        else:
-            if player:
-                self.main_window.player = player
-            else:
-                self.main_window.player = not player
-            self.main_window.set_message(f'Ход компьютера')
         self.close()
 
     @staticmethod
